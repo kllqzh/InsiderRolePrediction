@@ -7,7 +7,7 @@ Key Contribution:
 - Tested multiple classification algorithms on dataset, and arrive at the best model for prediction based on trials and errors
 
 Team Members:
-Zihui (Betty) Qin 
-Wenqi (Maggie) Zhao
-Muyuan Yang
-Amartya (Marty) Mukherjee
+Zihui (Betty) Qin, 
+Wenqi (Maggie) Zhao,
+Muyuan Yang,
+Amartya (Marty) Mukherjee,
