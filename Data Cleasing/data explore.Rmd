@@ -1,0 +1,169 @@
+---
+title: "data explore"
+author: "Zihui Qin"
+date: '2020-11-22'
+output: pdf_document
+---
+
+```{r}
+df <- read.csv('Data.csv')
+```
+
+```{r}
+level1 <-c('CB','CEO','CO','GC','P')
+level2 <-c('AC','AF','CC','CFO','CI','CT','D','DO','EC','FC','GP','H','M','MC','MD','O','OB','OD','OP','OS','OT','OX','S','SC','TR','VC')
+level3 <-c('AV','C','EVP','OE','GM','LP','SVP','T','VP')
+level4 <-c('AI','B','BC','BT','CP','DS','F','FO','IA','R','SH','UT','VT','X')
+```
+
+
+```{r}
+targetvar <- function(y){
+  if (y %in% level1){
+    1
+  } else if (y %in% level2){
+    2
+  }else if (y %in% level3){
+    3
+  } else if (y %in% level4){
+    4
+  }else {5}
+}
+
+minconvert <- function(a,b,c,d,n){
+  y <- vector(mode ='numeric', length = n)
+  for(i in 1:n) {
+   numa <- targetvar(a[i])
+   numb <- targetvar(b[i])
+   numc <- targetvar(c[i])
+   numd <- targetvar(d[i])
+   y[i] <- min(numa,numb,numc,numd)
+  }
+  y
+}
+```
+
+Step 1#
+Thomson Reuters adds value by making systematic interpretations on the accuracy of as-reported data and inserting “cleansed” fields for comparison.
+We selected Data verified through cleaning process (passsed all data cleansing checks for reasonableness). The indicator for cleanse column is 'R'
+```{r}
+df <- testdf
+dfcleansed <- df[df$CLEANSE == 'R', ]
+# % of cleansed Data
+nrow(dfcleansed)/nrow(df)
+```
+
+
+
+Step 2# 
+We filter the dataset using transaction code. We belive that open market or private purchase and sale of non-derivative or derivative security is our target population, and other transactions are michivious in the financial market. 
+
+
+```{r}
+flist <- c('P','S')
+dffilter <- dfcleansed[dfcleansed$TRANCODE %in% flist,]
+nrow(dffilter)/nrow(dfcleansed)
+```
+
+
+Step 3# 
+Removing columns that are not relavant or repeative.
+```{r}
+library(tidyverse)
+dfnew <- select(dffilter,'FDATE',	'FORMTYPE',	'CUSIP2',	'TRANCODE',	'ACQDISP',	'TRANDATE',	'TPRICE',	'OWNERSHIP',	'SHARES',	'AMEND',	'SECDATE',	'SIGDATE',	'OPTIONSELL',	'SECTITLE',	'SECTOR',	'INDUSTRY','ROLECODE1','ROLECODE2','ROLECODE3','ROLECODE4')
+```
+
+Step 4#
+Remove Rows without Transaction Price (TPRICE). This is a database error.
+```{r}
+dfnew <- dfnew[!is.na(dfnew$TPRICE),]
+n <- nrow(dfnew)
+```
+
+
+
+Step 5# add new Variable - FILLDIFF, which is the difference between Transaction date and SEC file date. Legally it is the most common to have less than two days. Therefore, it could be a signal to level of role in the company. 
+```{r}
+dfadd <- mutate(dfnew,FILLDIFF = SECDATE - TRANDATE, .keep = 'all')
+```
+
+
+Step 6
+Change NA to 99 for SECTOR variable 
+Change NA to 00 for INDUSTRY variable
+One Hot encoding for OptionSell -> 3 new columns: all (A), partial (P), none (N)
+One Hot encoding for TransactionCode -> 2 new columns: Purchase(P), Sales (S)
+One Hot Encoding for ACQDISP -> 2 new columns: 'A' for an acquisition, 'D' for a disposition
+Change A  to 1, Blank to 0 for Amendment Indicator
+One Hot Encoding for Ownership -> 2 new columns direct (D), indirect (I)
+
+```{r}
+dfadd$SECTOR[is.na(dfadd$SECTOR)] <- 99
+dfadd$INDUSTRY[is.na(dfadd$INDUSTRY)] <- 00
+dfadd$AOPTIONSELL <- ifelse(dfadd$OPTIONSELL == "A",1,0)
+dfadd$POPTIONSELL <- ifelse(dfadd$OPTIONSELL == "P",1,0)
+dfadd$NOPTIONSELL <- ifelse(dfadd$OPTIONSELL == "P",1,0)
+dfadd$AMEND1 <- ifelse(dfadd$AMEND == "A",1,0)
+dfadd$PTRANCODE <- ifelse(dfadd$TRANCODE == "P",1,0)
+dfadd$STRANCODE <- ifelse(dfadd$TRANCODE == "S",1,0)
+dfadd$AACQDISP <- ifelse(dfadd$ACQDISP == "A",1,0)
+dfadd$DACQDISP <- ifelse(dfadd$ACQDISP == "D",1,0)
+dfadd$DOWNERSHIP <- ifelse(dfadd$OWNERSHIP == "D",1,0)
+dfadd$IOWNERSHIP <- ifelse(dfadd$OWNERSHIP == "I",1,0)
+```
+
+
+```{r}
+n <- nrow(dfadd)
+target <- minconvert(dfadd$ROLECODE1,dfadd$ROLECODE2,dfadd$ROLECODE3,dfadd$ROLECODE4,n)
+```
+
+```{r}
+colnames(dfadd)
+```
+
+
+```{r}
+Xtrain <- select(dfadd,"FDATE", "FORMTYPE","CUSIP2", "TRANDATE","TPRICE", "SHARES","SECDATE","SIGDATE", "SECTITLE"  ,  "SECTOR", "INDUSTRY",  "FILLDIFF" ,"AMEND1",  "AOPTIONSELL" , "POPTIONSELL", "NOPTIONSELL", "PTRANCODE"  , "STRANCODE"  , "AACQDISP",    "DACQDISP"   , "DOWNERSHIP", "IOWNERSHIP")
+length(target)
+nrow(Xtrain)
+```
+
+
+```{r}
+write.csv(target,file = 'ytest.csv')
+write.csv(Xtrain,file = 'Xtest.csv')
+```
+
+
+Run once to pick out randomly selected test set companies
+```{r}
+tickers <- read.csv('tickers.csv')
+unitickers <- unique(tickers$TICKER)
+Sampletickers <- sample(1:10119,size = 1000)
+selected <- unitickers[Sampletickers]
+write.csv(selected,file = 'sampleticker.csv')
+```
+
+==cleaning test set==
+
+```{r}
+testdf <- read.csv('testNC.csv')
+```
+define df <- testdf and run all above cleaning steps
+
+```{r}
+Xtrain <- read.csv('Xtrain.csv')
+ytrain <- read.csv('ytrain.csv')
+Xtest <- read.csv('Xtest.csv')
+ytest <- read.csv('ytest.csv')
+```
+
+```{r}
+nrow(Xtrain)
+nrow(ytrain)
+nrow(Xtest)
+nrow(ytest)
+```
+
+
