@@ -18,4 +18,5 @@ Amartya (Marty) Mukherjee
 
 Languages: R, Python, Matlab    
 Tools: Jypiter Notebook, Rstudio     
-Package: sklearn, dplyr, Classification Learner, Keras, numpy, pandas,Bioinformatics Toolbox     
+Package: sklearn, dplyr, Classification Learner, Keras, numpy, pandas,Bioinformatics Toolbox    
+Models: Trees, K-nearest, SVM, Neural Network
