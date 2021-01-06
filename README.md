@@ -4,6 +4,8 @@ Background (why we were interested in classifying based on insiders): The United
 
 Goal: To classify the role of an insider in a company based on the data of their trades.
 
+Presentation Link: https://youtu.be/y6v8jSFRpJU 
+
 Key Contribution:
 - First to explore Roles classification with the insider trading dataset, and provide future scholars to insights on information provided from the dataset and further improvement for a higher accuracy prediction model 
 - Tested multiple classification algorithms on dataset, and arrive at the best model for prediction based on trials and errors
