@@ -1,6 +1,8 @@
 # Insider Role Prediction (2020 December)
 
-The United States is one of the most frequently traded financial markets in the world.The Thomson Router insider trading table 1 dataset captures all insider activities as reported on SEC (U.S. Se- curities and Exchange Commission) forms 3, 4, 5, and 144. There had been studies shown, insider trading leads to abnormal returns after the transactions. Insiders’ in-depth knowledge in their firm and its customers leads to market believe it is worthy mimicking their trades. Non-insider clients would sought after insider trading details from brokers and make trading decisions. (Shkilko et al., 2017).
+Background (why we were interested in classifying based on insiders): The United States is one of the most frequently traded financial markets in the world. The dataset captures all insider activities as reported on SEC (U.S. Securities and Exchange Commission) forms 3, 4, 5, and 144. We believe that using variables (such as transaction date, security type, and transaction amount), we could predict the roles code for a new transaction. The reason for the chosen prediction is that the role of the insider gives investors signals of potential internal activities and private information. This is crucial for investors to detect important market signals from those insider trading activities, such that they could benefit from the market.
+
+Goal: To classify the role of an insider in a company based on the data of their trades.
 
 Key Contribution:
 - First to explore Roles classification with the insider trading dataset, and provide future scholars to insights on information provided from the dataset and further improvement for a higher accuracy prediction model 
