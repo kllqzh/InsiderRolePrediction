@@ -1,4 +1,4 @@
-# Insider Role Prediction (2020 December)
+# Insider Trading Roles Classification Prediction on United States conventional stock or non-derivative transaction (2020 December)
 
 Background (why we were interested in classifying based on insiders): The United States is one of the most frequently traded financial markets in the world. The dataset captures all insider activities as reported on SEC (U.S. Securities and Exchange Commission) forms 3, 4, 5, and 144. We believe that using variables (such as transaction date, security type, and transaction amount), we could predict the roles code for a new transaction. The reason for the chosen prediction is that the role of the insider gives investors signals of potential internal activities and private information. This is crucial for investors to detect important market signals from those insider trading activities, such that they could benefit from the market.
 
